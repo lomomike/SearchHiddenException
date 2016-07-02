@@ -1,0 +1,55 @@
+﻿>procdump.exe -ma -e 1 16036
+
+------------------------------
+0:000> .loadby sos clr
+0:000> !Threads
+c0000005 Exception in C:\Windows\Microsoft.NET\Framework\v4.0.30319\sos.Threads debugger extension.
+      PC: 0bb485e3  VA: 00000000  R/W: 0  Parameter: 00000000
+0:000> !Threads
+ThreadCount:      2
+UnstartedThread:  0
+BackgroundThread: 1
+PendingThread:    0
+DeadThread:       0
+Hosted Runtime:   no
+                                                                         Lock  
+       ID OSID ThreadOBJ    State GC Mode     GC Alloc Context  Domain   Count Apt Exception
+   0    1 3f84 00ebfd68     aa028 Preemptive  0340A6F8:00000000 00eb8fc0 0     MTA System.DivideByZeroException 034051c0
+   2    2 3c58 00ecd280     2b228 Preemptive  00000000:00000000 00eb8fc0 0     MTA (Finalizer) 
+0:000> ~1s
+eax=00000000 ebx=00000000 ecx=00000003 edx=00000000 esi=00000004 edi=00000004
+eip=77d390bc esp=015af6d0 ebp=015af860 iopl=0         nv up ei pl nz ac po nc
+cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000212
+ntdll!NtWaitForMultipleObjects+0xc:
+77d390bc c21400          ret     14h
+0:001> !clrstack
+OS Thread Id: 0x3f50 (1)
+Unable to walk the managed stack. The current thread is likely not a 
+managed thread. You can run !threads to get a list of managed threads in
+the process
+Failed to start stack walk: 80070057
+0:001> !ThreadState aa028
+    Debug Suspend Pending
+    Legal to Join
+    CoInitialized
+    In Multi Threaded Apartment
+    Fully initialized
+    Sync Suspended
+0:001> !PrintException /d 034051c0
+Exception object: 034051c0
+Exception type:   System.DivideByZeroException
+Message:          Попытка деления на нуль.
+InnerException:   <none>
+StackTrace (generated):
+    SP       IP       Function
+    00B5F108 00E40588 SearchHiddenException!SearchHiddenException.Program.RaiseAndHandleException()+0x38
+
+StackTraceString: <none>
+HResult: 80020012
+The current thread is unmanaged
+0:001> ~~[3f84]s
+eax=00000000 ebx=00000264 ecx=00000003 edx=00000000 esi=00000000 edi=00000264
+eip=77d38b2c esp=00b5de54 ebp=00b5dec4 iopl=0         nv up ei pl nz na po nc
+cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202
+ntdll!NtWaitForSingleObject+0xc:
+77d38b2c c20c00          ret     0Ch
